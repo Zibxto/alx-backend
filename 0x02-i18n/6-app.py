@@ -2,6 +2,7 @@
 """Module"""
 from flask import Flask, render_template, request, g
 from flask_babel import Babel
+from typing import Dict, Union
 
 app = Flask(__name__)
 babel = Babel(app)
@@ -24,7 +25,7 @@ users = {
 }
 
 
-def get_user():
+def get_user() -> Union[Dict, None]:
     """
     Returns a user dictionary or None if ID value can't be found
     or if 'login_as' URL parameter was not found
@@ -46,13 +47,19 @@ def before_request():
 
 @babel.localeselector
 def get_locale():
-    """Get the best matching language from the request or the forced locale."""
-    # Check if 'locale' parameter is in the request query string
-    locale = request.args.get('locale')
-    if locale in app.config['LANGUAGES']:
-        # Return the specified locale if it is supported
-        return locale
-    # Fallback to the best matching language
+    """
+    Select and return best language match based on supported languages
+    """
+    loc = request.args.get('locale')
+    if loc in app.config['LANGUAGES']:
+        return loc
+    if g.user:
+        loc = g.user.get('locale')
+        if loc and loc in app.config['LANGUAGES']:
+            return loc
+    loc = request.headers.get('locale', None)
+    if loc in app.config['LANGUAGES']:
+        return loc
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 
