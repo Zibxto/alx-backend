@@ -17,16 +17,22 @@ class Config:
 app.config.from_object(Config)
 
 
+@babel.localeselector
+def get_locale():
+    """Get the best matching language from the request or the forced locale."""
+    # Check if 'locale' parameter is in the request query string
+    locale = request.args.get('locale')
+    if locale in app.config['LANGUAGES']:
+        # Return the specified locale if it is supported
+        return locale
+    # Fallback to the best matching language
+    return request.accept_languages.best_match(app.config['LANGUAGES'])
+
+
 @app.route('/', strict_slashes=False)
 def home() -> str:
     """ display a HTML page"""
     return render_template('1-index.html')
-
-
-@babel.localeselector
-def get_locale():
-    """Get the best matching language."""
-    return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 
 if __name__ == "__main__":
