@@ -1,5 +1,5 @@
-#!/usr/bin/python3
-""" Starts a Flash Web Application """
+#!/usr/bin/env python3
+""" Starts a Flask Web Application """
 from flask import Flask, render_template
 app = Flask(__name__)
 
